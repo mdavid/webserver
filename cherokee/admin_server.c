@@ -396,7 +396,7 @@ cherokee_admin_server_reply_get_sources (cherokee_handler_t *hdl,
 	cherokee_server_t *srv = HANDLER_SRV(hdl);
 
 	cherokee_dwriter_list_open (dwriter);
-	cherokee_avl_while (&srv->sources, sources_while, dwriter, NULL, NULL);
+	cherokee_avl_while (*(cherokee_avl_generic_t **)&srv->sources, sources_while, dwriter, NULL, NULL);
 	cherokee_dwriter_list_close (dwriter);
 
 	return ret_ok;
