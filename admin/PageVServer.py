@@ -126,7 +126,7 @@ VALIDATIONS = [
     ("vserver![\d]+!document_root",              validations.is_dev_null_or_local_dir_exists),
     ("vserver![\d]+!post_max_len",               validations.is_positive_int),
     ("vserver![\d]+!ssl_certificate_file",       validations.is_local_file_exists),
-    ("vserver![\d]+!ssl_certificate_key_file",   validations.is_local_file_exists),
+    ("vserver![\d]+!ssl_certificate_key_file",   validations.is_valid_certkey),
     ("vserver![\d]+!ssl_ca_list_file",           validation_ca_list),
     ("vserver![\d]+!ssl_verify_depth",           validations.is_positive_int),
     ("vserver![\d]+!error_writer!filename",      validations.can_create_file),
@@ -742,4 +742,5 @@ CTK.publish (r'^%s/[\d]+'         %(URL_APPLY), CTK.cfg_apply_post,        metho
 CTK.publish (r'^%s/[\d]+/log'     %(URL_APPLY), LogginWidgetContent_Apply, method="POST", validation=VALIDATIONS)
 CTK.publish (r'^%s/[\d]+/vmatch'  %(URL_APPLY), HostMatchWidget_Apply,     method="POST")
 CTK.publish (r'^%s/[\d]+/clone$'  %(URL_BASE),  commit_clone)
+
 
