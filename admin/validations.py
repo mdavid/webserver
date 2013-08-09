@@ -444,3 +444,19 @@ def has_no_double_quotes (value):
     if '"' in value:
         raise ValueError, _('Cannot contain the double quote (") character')
     return value
+
+def is_valid_certkey(value):
+    is_local_file_exists(value)
+
+    with open(value, 'r') as f:
+        cert_data = f.read()
+        if "ENCRYPTED" in cert_data:
+            # TODO translation
+            raise UserWarning,\
+                (_('The certificate key is encrypted.\
+                 You may safely ignore this warning, \
+                 but you have to manually enter the passphrase \
+                 when starting the Cherokee server.'), value)
+    f.closed
+
+    return value
