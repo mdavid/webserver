@@ -35,8 +35,9 @@ cherokee_bind_new (cherokee_bind_t **listener)
 
 	cherokee_buffer_init (&n->ip);
 	cherokee_socket_init (&n->socket);
-	n->port = 0;
-	n->id   = 0;
+	n->port   = 0;
+	n->id     = 0;
+	n->family = 0;
 
 	cherokee_buffer_init (&n->server_string);
 	cherokee_buffer_init (&n->server_string_w_port);
@@ -118,6 +119,11 @@ cherokee_bind_configure (cherokee_bind_t        *listener,
 	if (ret == ret_ok) {
 		cherokee_buffer_mrproper (&listener->ip);
 		cherokee_buffer_add_buffer (&listener->ip, buf);
+		if (cherokee_string_is_ipv6 (&listener->ip)) {
+			listener->family = AF_INET6;
+		} else {
+			listener->family = AF_INET;
+		}
 	}
 
 	ret = cherokee_config_node_read_int (conf, "port", &listener->port);
@@ -267,7 +273,7 @@ cherokee_bind_init_port (cherokee_bind_t         *listener,
 	/* Init the port
 	 */
 #ifdef HAVE_IPV6
-	if (ipv6) {
+	if (ipv6 && listener->family != AF_INET) {
 		ret = init_socket (listener, AF_INET6);
 	} else
 #endif
@@ -275,14 +281,14 @@ cherokee_bind_init_port (cherokee_bind_t         *listener,
 		ret = ret_not_found;
 	}
 
-	if (ret != ret_ok) {
+	if (ret != ret_ok && listener->family != AF_INET6) {
 		ret = init_socket (listener, AF_INET);
+	}
 
-		if (ret != ret_ok) {
-			LOG_CRITICAL (CHEROKEE_ERROR_BIND_COULDNT_BIND_PORT,
-				      listener->port, getuid(), getgid());
-			goto error;
-		}
+	if (ret != ret_ok) {
+		LOG_CRITICAL (CHEROKEE_ERROR_BIND_COULDNT_BIND_PORT,
+			      listener->port, getuid(), getgid());
+		goto error;
 	}
 
 	/* Listen
